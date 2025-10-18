@@ -1,0 +1,377 @@
+<!-- <p>notificacion-registro-page works!</p>, -->
+<!-- Content Wrapper. Contains page content -->
+<div class="content-wrapper">
+   <!-- Content Header (Page header) -->
+   <section class="content-header">
+      <div class="container-fluid">
+         <div class="row mb-2">
+
+            <div class="col-sm-6">
+               <ol class="breadcrumb float-sm-right">
+                  <!-- <li class="breadcrumb-item active">
+                     <a href="<?= base_url(); ?>notificacion/create" class="btn btn-secondary btn-flat pull-right"><i class="fa fa-plus fa fa-white"> </i> Agregar</a>
+                  </li> -->
+               </ol>
+            </div><!-- /.col -->
+
+         </div>
+      </div><!-- /.container-fluid -->
+   </section>
+
+   <!-- Main content -->
+   <section class="content">
+      <div class="container-fluid">
+         <div class="row">
+            <div class="col-md-10">
+               <div class="card">
+                  <div class="card-header">
+                     <h3 class="card-title">Notificacion del Consejo de la Judicatura Federal </h3>
+                  </div>
+                  <!-- /.card-header -->
+                  <div class="card-body">
+
+                     <div class="row">
+                        <div class="col-sm-12 col-md-4">
+                           <div class="form-group">
+                              <label>Amparo <span class="text-red">*</span></label>
+                              <div class="form-group">
+
+                                 <input type="text" name="nombre" id="nombre" value="" class="form-control" placeholder="Amparo" autocomplete="off" required>
+                                 <div id="error_message" style="color:red;"></div>
+                              </div>
+                           </div>
+                        </div>
+
+                        <div class="col-sm-12 col-md-4">
+                           <div class="form-group">
+                              <label>Fecha de Envio <span class="text-red">*</span></label>
+                              <div class="form-group">
+
+                                 <input type="date" name="paterno" id="paterno" value="" class="form-control" placeholder="Fecha" autocomplete="off" required>
+                                 <div id="error_message" style="color:red;"></div>
+                              </div>
+                           </div>
+                        </div>
+
+                        <div class="col-sm-12 col-md-4">
+                           <div class="form-group">
+                              <label>Folio <span class="text-red">*</span></label>
+                              <div class="form-group">
+                                 <input type="text" name="materno" id="materno" value="" class="form-control" placeholder="Folio" autocomplete="off" required>
+                                 <div id="error_message" style="color:red;"></div>
+                              </div>
+                           </div>
+                        </div>
+
+                     </div>
+
+
+                     <div class="row">
+                        <div class="col-sm-12 col-md-4">
+                           <div class="form-group">
+                              <label>Materia <span class="text-red">*</span></label>
+                              <div class="form-group">
+
+                                 <input type="text" name="nombre" id="nombre" value="" class="form-control" placeholder="Materia" autocomplete="off" required>
+                                 <div id="error_message" style="color:red;"></div>
+                              </div>
+                           </div>
+                        </div>
+
+                        <div class="col-sm-12 col-md-4">
+                           <div class="form-group">
+                              <label>Cuaderno <span class="text-red">*</span></label>
+                              <div class="form-group">
+
+                                 <input type="text" name="paterno" id="paterno" value="" class="form-control" placeholder="Cuaderno" autocomplete="off" required>
+                                 <div id="error_message" style="color:red;"></div>
+                              </div>
+                           </div>
+                        </div>
+
+                        <div class="col-sm-12 col-md-4">
+                           <div class="form-group">
+                              <label>Procedimiento<span class="text-red">*</span></label>
+                              <div class="form-group">
+                                 <input type="text" name="materno" id="materno" value="" class="form-control" placeholder="Procedimiento" autocomplete="off" required>
+                                 <div id="error_message" style="color:red;"></div>
+                              </div>
+                           </div>
+                        </div>
+
+                     </div>
+
+
+                     <div class="row">
+                        <div class="col-sm-12 col-md-6">
+                           <div class="form-group">
+                              <label>Asunto <span class="text-red">*</span></label>
+                              <div class="form-group">
+
+                                 <input type="text" name="nombre" id="nombre" value="" class="form-control" placeholder="Asunto" autocomplete="off" required>
+                                 <div id="error_message" style="color:red;"></div>
+                              </div>
+                           </div>
+                        </div>
+
+                        <div class="col-sm-12 col-md-6">
+                           <div class="form-group">
+                              <label>Autoridad Federal <span class="text-red">*</span></label>
+                              <div class="form-group">
+
+                                 <input type="text" name="paterno" id="paterno" value="" class="form-control" placeholder="Autoridad Federal" autocomplete="off" required>
+                                 <div id="error_message" style="color:red;"></div>
+                              </div>
+                           </div>
+                        </div>
+
+
+                     </div>
+
+
+
+
+                  </div>
+                  <!-- /.card-body -->
+
+
+
+               </div>
+               <!-- /.card -->
+
+            </div>
+            <!-- /.col -->
+         </div>
+         <!-- /.row -->
+      </div><!-- /.container-fluid -->
+   </section>
+
+   <section class="content">
+      <div class="container-fluid">
+         <div class="row">
+            <div class="col-md-5">
+
+               <!-- About Me Box -->
+               <div class="card card-default">
+                  <div class="card-header">
+                     <h3 class="card-title">Partes</h3>
+                  </div>
+                  <!-- /.card-header -->
+                  <div class="card-body">
+                     <div class="table-responsive">
+                        <table id="tableGeneral" class="table table-sm table-bordered table-hover table-valign-middle table-striped">
+                           <thead>
+                              <tr>
+                                 <th>Nombre</th>
+                                 <th>Caracter</th>
+                                 <th>Actos reclamados</th>
+
+                              </tr>
+                           </thead>
+
+                           <tr>
+                              <td></td>
+                              <td></td>
+                              <td></td>
+
+                           </tr>
+
+                        </table>
+                     </div>
+                  </div>
+                  <!-- /.card-body -->
+               </div>
+               <!-- /.card -->
+
+            </div>
+            <!-- /.col -->
+            <div class="col-md-5">
+               <div class="card card-default">
+                  <div class="card-header">
+                     <h3 class="card-title">Documentos</h3>
+                  </div>
+                  <!-- /.card-header -->
+                  <div class="card-body">
+                     <div class="table-responsive">
+                        <table id="tableGeneral2" class="table table-sm table-bordered table-hover table-valign-middle table-striped">
+                           <thead>
+                              <tr>
+                                 <th>Nombre</th>
+                                 <th>Documento</th>
+                                 <th>Ver</th>
+
+                              </tr>
+                           </thead>
+
+                           <tr>
+                              <td></td>
+                              <td></td>
+                              <td></td>
+
+                           </tr>
+
+                        </table>
+                     </div>
+                  </div>
+                  <!-- /.card-body -->
+               </div>
+            </div>
+            <!-- /.col -->
+         </div>
+         <!-- /.row -->
+      </div><!-- /.container-fluid -->
+   </section>
+
+   <!-- Main content -->
+
+   <section class="content">
+      <div class="container-fluid">
+         <div class="row">
+            <div class="col-md-10">
+               <div class="card">
+
+                  <div class="card-body">
+
+                     <div class="row">
+                        <div class="col-sm-12 col-md-6">
+                           <div class="form-group">
+                              <label>Numero de Amparo <span class="text-red">*</span></label>
+                              <div class="form-group">
+
+                                 <input type="text" name="nombre" id="nombre" value="" class="form-control" placeholder="Amparo" autocomplete="off" required>
+                                 <div id="error_message" style="color:red;"></div>
+                              </div>
+                           </div>
+                        </div>
+
+                        <div class="col-sm-12 col-md-6">
+                           <div class="form-group">
+                              <label>Expediente Electónico <span class="text-red">*</span></label>
+                              <div class="form-group">
+
+                                 <input type="" name="paterno" id="paterno" value="" class="form-control" placeholder="Expediente Electónico" autocomplete="off" required>
+                                 <div id="error_message" style="color:red;"></div>
+                              </div>
+                           </div>
+                        </div>
+
+                     </div>
+
+
+                     <div class="row">
+                        <div class="col-sm-12 col-md-6">
+                           <div class="form-group">
+                              <label>Adjuntar documentos de Respueta <span class="text-red">*</span></label>
+                              <div class="form-group">
+
+                                 <input type="text" name="nombre" id="nombre" value="" class="form-control" placeholder="Materia" autocomplete="off" required>
+                                 <div id="error_message" style="color:red;"></div>
+                              </div>
+                           </div>
+                        </div>
+
+                        <div class="col-sm-12 col-md-3">
+                           <div class="form-group">
+                              <label>Tipo de Archivo<span class="text-red">*</span></label>
+                              <div class="form-group">
+
+                                 <input type="text" name="paterno" id="paterno" value="" class="form-control" placeholder="Cuaderno" autocomplete="off" required>
+                                 <div id="error_message" style="color:red;"></div>
+                              </div>
+                           </div>
+                        </div>
+
+                         <div class="row">
+                        <div class="col-sm-12 col-md-4">
+                           <div class="form-group">
+                              <label>Tipo de Cuaderno <span class="text-red">*</span></label>
+                              <select name="fk_categoria" id="fk_categoria" class="form-control select2" style="width: 100%;" required>
+                                 <option value="">Seleccione una opción</option>
+
+                              </select>
+                           </div>
+                        </div>
+                     </div>
+
+                        <div class="col-sm-12 col-md-3">
+                           <div class="form-group">
+                              <label> Agregar </label>
+                              <div class="form-group">
+
+                                 <button type="submit" class="btn btn-success">Agregar</button>
+                                 <div id="error_message" style="color:red;"></div>
+                              </div>
+                           </div>
+                        </div>
+
+
+                     </div>
+                  </div>
+                  <!-- /.card-body -->
+               </div>
+               <!-- /.card -->
+            </div>
+            <!-- /.col -->
+         </div>
+         <!-- /.row -->
+      </div><!-- /.container-fluid -->
+   </section>
+
+
+   <!-- Main content -->
+
+   <section class="content">
+      <div class="container-fluid">
+         <div class="row">
+            <div class="col-md-10">
+               <div class="card">
+
+                  <div class="card-body">
+
+                     <div class="row">
+                        <div class="col-md-12">
+                           <div class="card card-default">
+                              <div class="card-header">
+                                 <h3 class="card-title">Documentos</h3>
+                              </div>
+                              <!-- /.card-header -->
+                              <div class="card-body">
+                                 <div class="table-responsive">
+                                    <table id="tableGeneral2" class="table table-sm table-bordered table-hover table-valign-middle table-striped">
+                                       <thead>
+                                          <tr>
+                                             <th>Nombre</th>
+                                             <th>Documento</th>
+                                             <th>Quitar / Ver </th>
+
+                                          </tr>
+                                       </thead>
+
+                                       <tr>
+                                          <td></td>
+                                          <td></td>
+                                          <td></td>
+
+                                       </tr>
+
+                                    </table>
+                                 </div>
+                              </div>
+                              <!-- /.card-body -->
+                           </div>
+                        </div>
+
+                     </div>
+
+
+
+                  </div>
+                  <!-- /.card-body -->
+               </div>
+               <!-- /.card -->
+            </div>
+            <!-- /.col -->
+         </div>
+         <!-- /.row -->
+      </div><!-- /.container-fluid -->
+   </section>
