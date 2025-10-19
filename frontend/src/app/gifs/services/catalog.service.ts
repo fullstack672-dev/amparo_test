@@ -9,6 +9,13 @@ export interface CatalogItem {
   activo?: boolean;
   fecha_creacion?: string;
   fecha_actualizacion?: string;
+  // Juzgados specific fields
+  Clave?: string;
+  Correo?: string;
+  TipoJuicio?: string;
+  IdDistrito?: number;
+  // Allow bracket notation access
+  [key: string]: any;
 }
 
 export interface CatalogResponse {
