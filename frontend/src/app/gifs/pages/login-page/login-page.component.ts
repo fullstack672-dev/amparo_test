@@ -40,46 +40,20 @@ export default class LoginPageComponent {
 
     const { identifier, password } = this.loginForm.value;
 
-    // Check for super administrator credentials
-    if (identifier === 'admin@admin.com' && password === 'admin123') {
-      // Super admin login - bypass database validation
-      console.log('Super administrator login successful');
-      
-      // Create super admin user object
-      const superAdminUser = {
-        IdUsuario: 0,
-        Nombre: 'Super Administrator',
-        APaterno: 'Admin',
-        AMaterno: 'System',
-        Usuario: 'admin@admin.com',
-        Correo: 'admin@admin.com',
-        Telefono: '',
-        Extension: '',
-        id_perfil: 1, // Assuming 1 is admin profile
-        organo_impartidor_justicia: 1, // Assuming 1 is a valid organo
-        Estado: 'A',
-        Eliminado: 0,
-        isSuperAdmin: true
-      };
-
-      // Store super admin info in localStorage
-      localStorage.setItem('currentUser', JSON.stringify(superAdminUser));
-      localStorage.setItem('token', 'super-admin-token-' + Date.now());
-      
-      // Update auth service current user
-      this.authService['currentUserSubject'].next(superAdminUser);
-      
-      this.isLoading = false;
-      this.router.navigate(['/dashboard/usuario']);
-      return;
-    }
-
-    // Regular user login - check database
+    // All users (including admin@admin.com) go through regular login
     this.authService.login(this.loginForm.value).subscribe({
       next: (response) => {
         console.log('Login successful:', response);
-        this.router.navigate(['/dashboard']);
         this.isLoading = false;
+        
+        // Check if user is admin and redirect to user management page
+        if (response.user.id_perfil === 1) {
+          // Admin user - redirect to user administration page
+          this.router.navigate(['/dashboard/usuario-admin']);
+        } else {
+          // Regular user - redirect to their usuario page
+          this.router.navigate(['/dashboard/usuario']);
+        }
       },
       error: (error) => {
         console.error('Login error:', error);

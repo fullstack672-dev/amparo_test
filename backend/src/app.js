@@ -13,8 +13,30 @@ const perfilesRoutes = require('./routes/perfiles');
 
 const app = express();
 
-// Security middleware
-app.use(helmet());
+// CORS configuration (must be before helmet for proper functionality)
+const corsOptions = {
+  origin: process.env.CORS_ORIGIN || 'http://localhost:4200',
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
+  exposedHeaders: ['Content-Range', 'X-Content-Range'],
+  maxAge: 600 // Cache preflight requests for 10 minutes
+};
+app.use(cors(corsOptions));
+
+// Security middleware (configured to work with CORS)
+app.use(helmet({
+  crossOriginResourcePolicy: { policy: "cross-origin" },
+  crossOriginEmbedderPolicy: false,
+  contentSecurityPolicy: {
+    directives: {
+      defaultSrc: ["'self'"],
+      styleSrc: ["'self'", "'unsafe-inline'"],
+      scriptSrc: ["'self'"],
+      imgSrc: ["'self'", "data:", "https:"],
+    },
+  },
+}));
 
 // Rate limiting
 const limiter = rateLimit({
@@ -23,18 +45,15 @@ const limiter = rateLimit({
 });
 app.use(limiter);
 
-// CORS configuration
-app.use(cors({
-  origin: process.env.CORS_ORIGIN || 'http://localhost:4200',
-  credentials: true
-}));
-
 // Body parsing middleware
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true }));
 
 // Logging middleware
 app.use(morgan('combined'));
+
+// Handle preflight requests
+app.options('*', cors(corsOptions));
 
 // Routes
 app.use('/api/auth', authRoutes);

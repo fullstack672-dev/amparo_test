@@ -112,8 +112,8 @@ router.get('/:id', async (req, res) => {
 });
 
 // POST /api/perfiles - Create new perfil
-// @access  Public (authentication bypassed)
-router.post('/', async (req, res) => {
+// @access  Private (Admin only)
+router.post('/', adminAuth, async (req, res) => {
   try {
     const { nombre } = req.body;
     
@@ -168,8 +168,8 @@ router.post('/', async (req, res) => {
 });
 
 // PUT /api/perfiles/:id - Update perfil
-// @access  Public (authentication bypassed)
-router.put('/:id', async (req, res) => {
+// @access  Private (Admin only)
+router.put('/:id', adminAuth, async (req, res) => {
   try {
     const { id } = req.params;
     const { nombre, activo = true } = req.body;
@@ -241,8 +241,8 @@ router.put('/:id', async (req, res) => {
 });
 
 // DELETE /api/perfiles/:id - Delete perfil (soft delete)
-// @access  Public (authentication bypassed)
-router.delete('/:id', async (req, res) => {
+// @access  Private (Admin only)
+router.delete('/:id', adminAuth, async (req, res) => {
   try {
     const { id } = req.params;
     const pool = getPool();

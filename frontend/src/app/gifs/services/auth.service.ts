@@ -21,19 +21,22 @@ export class AuthService {
     const currentUser = localStorage.getItem('currentUser');
     
     if (token && currentUser) {
-      // Check if it's a super admin token
-      if (token.startsWith('super-admin-token-')) {
+      // Load user from localStorage first (for immediate access)
+      try {
         const user = JSON.parse(currentUser);
         this.currentUserSubject.next(user);
-        return;
+      } catch (error) {
+        console.error('Error parsing stored user:', error);
       }
       
-      // Regular user - validate with backend
+      // Validate token with backend and refresh user data
       this.getCurrentUser().subscribe({
         next: (response) => {
+          localStorage.setItem('currentUser', JSON.stringify(response.user));
           this.currentUserSubject.next(response.user);
         },
         error: () => {
+          // Token invalid or expired - clear storage
           this.logout();
         }
       });
@@ -45,6 +48,7 @@ export class AuthService {
       .pipe(
         tap(response => {
           localStorage.setItem('token', response.token);
+          localStorage.setItem('currentUser', JSON.stringify(response.user));
           this.currentUserSubject.next(response.user);
         })
       );
@@ -55,6 +59,7 @@ export class AuthService {
       .pipe(
         tap(response => {
           localStorage.setItem('token', response.token);
+          localStorage.setItem('currentUser', JSON.stringify(response.user));
           this.currentUserSubject.next(response.user);
         })
       );
@@ -91,20 +96,24 @@ export class AuthService {
 
   // Super Administrator methods
   isSuperAdmin(): boolean {
-    const token = localStorage.getItem('token');
-    return token ? token.startsWith('super-admin-token-') : false;
+    // Check if current user has admin profile (id_perfil === 1)
+    const user = this.currentUserSubject.value;
+    if (!user) return false;
+    
+    // Admin profile ID is 1
+    return user.id_perfil === 1;
   }
 
   getCurrentUserData(): User | null {
-    const currentUser = localStorage.getItem('currentUser');
-    return currentUser ? JSON.parse(currentUser) : null;
+    // Return current user from BehaviorSubject
+    return this.currentUserSubject.value;
   }
 
   hasPermission(permission: string): boolean {
     const user = this.getCurrentUserData();
     if (!user) return false;
     
-    // Super admin has all permissions
+    // Admin users (id_perfil === 1) have all permissions
     if (this.isSuperAdmin()) return true;
     
     // Add other permission checks based on user profile
@@ -113,6 +122,7 @@ export class AuthService {
   }
 
   canAccessAllPages(): boolean {
+    // Admin users can access all pages
     return this.isSuperAdmin();
   }
 
@@ -120,10 +130,11 @@ export class AuthService {
     const user = this.getCurrentUserData();
     if (!user) return 'Usuario';
     
-    if (this.isSuperAdmin()) {
-      return 'Super Administrator';
-    }
+    // Build full name
+    const fullName = [user.Nombre, user.APaterno, user.AMaterno]
+      .filter(Boolean)
+      .join(' ');
     
-    return user.Nombre || user.Usuario || 'Usuario';
+    return fullName || user.Usuario || 'Usuario';
   }
 }

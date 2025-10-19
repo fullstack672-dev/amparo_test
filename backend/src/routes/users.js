@@ -7,8 +7,8 @@ const router = express.Router();
 
 // @route   GET /api/users
 // @desc    Get all users with pagination and search
-// @access  Public (authentication bypassed)
-router.get('/', async (req, res) => {
+// @access  Private (Admin only)
+router.get('/', authenticateToken, requireRole(['admin']), async (req, res) => {
   try {
     const { page = 1, limit = 10, search = '', estado = '' } = req.query;
     const offset = (page - 1) * limit;
@@ -16,7 +16,8 @@ router.get('/', async (req, res) => {
     const pool = getPool();
     
     // Build WHERE clause
-    let whereClause = 'WHERE u.Eliminado = 0';
+    // Exclude super admin user (admin@admin.com) from listings
+    let whereClause = 'WHERE u.Eliminado = 0 AND u.Correo != @superAdminEmail';
     if (search) {
       whereClause += ' AND (u.Nombre LIKE @search OR u.APaterno LIKE @search OR u.AMaterno LIKE @search OR u.Usuario LIKE @search OR u.Correo LIKE @search)';
     }
@@ -27,6 +28,7 @@ router.get('/', async (req, res) => {
     // Get total count
     const countQuery = `SELECT COUNT(*) as total FROM Usuarios u ${whereClause}`;
     const countRequest = pool.request();
+    countRequest.input('superAdminEmail', sql.VarChar, 'admin@admin.com');
     if (search) {
       countRequest.input('search', sql.VarChar, `%${search}%`);
     }
@@ -63,7 +65,8 @@ router.get('/', async (req, res) => {
     
     const dataRequest = pool.request()
       .input('offset', sql.Int, offset)
-      .input('limit', sql.Int, parseInt(limit));
+      .input('limit', sql.Int, parseInt(limit))
+      .input('superAdminEmail', sql.VarChar, 'admin@admin.com');
       
     if (search) {
       dataRequest.input('search', sql.VarChar, `%${search}%`);
@@ -98,13 +101,20 @@ router.get('/', async (req, res) => {
 
 // @route   GET /api/users/:id
 // @desc    Get user by ID
-// @access  Public (authentication bypassed)
-router.get('/:id', async (req, res) => {
+// @access  Private (requires authentication)
+router.get('/:id', authenticateToken, async (req, res) => {
   try {
     const { id } = req.params;
     const user = await User.findById(parseInt(id));
 
     if (!user) {
+      return res.status(404).json({
+        message: 'User not found'
+      });
+    }
+
+    // Hide super admin user from API responses
+    if (user.Correo === 'admin@admin.com') {
       return res.status(404).json({
         message: 'User not found'
       });
@@ -124,8 +134,8 @@ router.get('/:id', async (req, res) => {
 
 // @route   POST /api/users
 // @desc    Create new user
-// @access  Public (authentication bypassed)
-router.post('/', async (req, res) => {
+// @access  Private (Admin only)
+router.post('/', authenticateToken, requireRole(['admin']), async (req, res) => {
   try {
     const {
       Nombre,
@@ -202,8 +212,8 @@ router.post('/', async (req, res) => {
 
 // @route   PUT /api/users/:id
 // @desc    Update user
-// @access  Public (authentication bypassed)
-router.put('/:id', async (req, res) => {
+// @access  Private (requires authentication)
+router.put('/:id', authenticateToken, async (req, res) => {
   try {
     const { id } = req.params;
     const {
@@ -227,6 +237,14 @@ router.put('/:id', async (req, res) => {
       return res.status(404).json({
         success: false,
         message: 'User not found'
+      });
+    }
+
+    // Prevent modification of super admin user
+    if (existingUser.Correo === 'admin@admin.com') {
+      return res.status(403).json({
+        success: false,
+        message: 'Cannot modify super administrator account'
       });
     }
 
@@ -300,8 +318,8 @@ router.put('/:id', async (req, res) => {
 
 // @route   DELETE /api/users/:id
 // @desc    Delete user (soft delete)
-// @access  Public (authentication bypassed)
-router.delete('/:id', async (req, res) => {
+// @access  Private (Admin only)
+router.delete('/:id', authenticateToken, requireRole(['admin']), async (req, res) => {
   try {
     const { id } = req.params;
     const pool = getPool();
@@ -312,6 +330,14 @@ router.delete('/:id', async (req, res) => {
       return res.status(404).json({
         success: false,
         message: 'User not found'
+      });
+    }
+
+    // Prevent deletion of super admin user
+    if (existingUser.Correo === 'admin@admin.com') {
+      return res.status(403).json({
+        success: false,
+        message: 'Cannot delete super administrator account'
       });
     }
 
@@ -335,8 +361,8 @@ router.delete('/:id', async (req, res) => {
 
 // @route   PATCH /api/users/:id/toggle-status
 // @desc    Toggle user active/inactive status
-// @access  Public (authentication bypassed)
-router.patch('/:id/toggle-status', async (req, res) => {
+// @access  Private (Admin only)
+router.patch('/:id/toggle-status', authenticateToken, requireRole(['admin']), async (req, res) => {
   try {
     const { id } = req.params;
     const pool = getPool();
@@ -347,6 +373,14 @@ router.patch('/:id/toggle-status', async (req, res) => {
       return res.status(404).json({
         success: false,
         message: 'User not found'
+      });
+    }
+
+    // Prevent status change of super admin user
+    if (user.Correo === 'admin@admin.com') {
+      return res.status(403).json({
+        success: false,
+        message: 'Cannot modify super administrator account status'
       });
     }
 

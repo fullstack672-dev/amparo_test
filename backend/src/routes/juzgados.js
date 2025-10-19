@@ -13,33 +13,35 @@ router.get('/', async (req, res) => {
     const pool = getPool();
     
     // Build WHERE clause
-    let whereClause = 'WHERE Eliminado = 0';
+    let whereClause = 'WHERE j.Eliminado = 0';
     if (search) {
-      whereClause += ' AND (Nombre LIKE @search OR Clave LIKE @search)';
+      whereClause += ' AND (j.Nombre LIKE @search OR j.Clave LIKE @search)';
     }
     
     // Get total count
-    const countQuery = `SELECT COUNT(*) as total FROM Cat_Juzgados ${whereClause}`;
+    const countQuery = `SELECT COUNT(*) as total FROM Cat_Juzgados j ${whereClause}`;
     const countRequest = pool.request();
     if (search) {
       countRequest.input('search', sql.VarChar, `%${search}%`);
     }
     const countResult = await countRequest.query(countQuery);
 
-    // Get paginated data
+    // Get paginated data with district information
     const dataQuery = `
       SELECT 
-        organo_impartidor_justicia as id,
-        IdJuzgadoPJHGO,
-        Clave,
-        Nombre as nombre,
-        TipoJuicio,
-        IdDistrito,
-        Correo,
-        CASE WHEN Eliminado = 0 THEN 1 ELSE 0 END as activo
-      FROM Cat_Juzgados 
+        j.organo_impartidor_justicia as id,
+        j.IdJuzgadoPJHGO,
+        j.Clave,
+        j.Nombre as nombre,
+        j.TipoJuicio,
+        j.IdDistrito,
+        j.Correo,
+        d.Nombre as distrito_nombre,
+        CASE WHEN j.Eliminado = 0 THEN 1 ELSE 0 END as activo
+      FROM Cat_Juzgados j
+      LEFT JOIN Cat_Distritos d ON j.IdDistrito = d.IdDistrito
       ${whereClause}
-      ORDER BY Nombre
+      ORDER BY j.Nombre
       OFFSET @offset ROWS
       FETCH NEXT @limit ROWS ONLY
     `;
@@ -122,8 +124,8 @@ router.get('/:id', async (req, res) => {
 });
 
 // POST /api/juzgados - Create new juzgado
-// @access  Public (authentication bypassed)
-router.post('/', async (req, res) => {
+// @access  Private (Admin only)
+router.post('/', adminAuth, async (req, res) => {
   try {
     const { nombre, clave = '', tipoJuicio = 'A', idDistrito = 1, correo = '' } = req.body;
     
@@ -171,16 +173,18 @@ router.post('/', async (req, res) => {
         VALUES (@juzgadoId, @clave, @nombre, @tipoJuicio, @idDistrito, @organo, @correo, 0);
         
         SELECT 
-          organo_impartidor_justicia as id,
-          IdJuzgadoPJHGO,
-          Clave,
-          Nombre as nombre,
-          TipoJuicio,
-          IdDistrito,
-          Correo,
-          CASE WHEN Eliminado = 0 THEN 1 ELSE 0 END as activo
-        FROM Cat_Juzgados 
-        WHERE organo_impartidor_justicia = @organo
+          j.organo_impartidor_justicia as id,
+          j.IdJuzgadoPJHGO,
+          j.Clave,
+          j.Nombre as nombre,
+          j.TipoJuicio,
+          j.IdDistrito,
+          j.Correo,
+          d.Nombre as distrito_nombre,
+          CASE WHEN j.Eliminado = 0 THEN 1 ELSE 0 END as activo
+        FROM Cat_Juzgados j
+        LEFT JOIN Cat_Distritos d ON j.IdDistrito = d.IdDistrito
+        WHERE j.organo_impartidor_justicia = @organo
       `);
 
     res.status(201).json({
@@ -199,8 +203,8 @@ router.post('/', async (req, res) => {
 });
 
 // PUT /api/juzgados/:id - Update juzgado
-// @access  Public (authentication bypassed)
-router.put('/:id', async (req, res) => {
+// @access  Private (Admin only)
+router.put('/:id', adminAuth, async (req, res) => {
   try {
     const { id } = req.params;
     const { nombre, clave, tipoJuicio, idDistrito, correo, activo = true } = req.body;
@@ -259,16 +263,18 @@ router.put('/:id', async (req, res) => {
         WHERE organo_impartidor_justicia = @id;
         
         SELECT 
-          organo_impartidor_justicia as id,
-          IdJuzgadoPJHGO,
-          Clave,
-          Nombre as nombre,
-          TipoJuicio,
-          IdDistrito,
-          Correo,
-          CASE WHEN Eliminado = 0 THEN 1 ELSE 0 END as activo
-        FROM Cat_Juzgados 
-        WHERE organo_impartidor_justicia = @id
+          j.organo_impartidor_justicia as id,
+          j.IdJuzgadoPJHGO,
+          j.Clave,
+          j.Nombre as nombre,
+          j.TipoJuicio,
+          j.IdDistrito,
+          j.Correo,
+          d.Nombre as distrito_nombre,
+          CASE WHEN j.Eliminado = 0 THEN 1 ELSE 0 END as activo
+        FROM Cat_Juzgados j
+        LEFT JOIN Cat_Distritos d ON j.IdDistrito = d.IdDistrito
+        WHERE j.organo_impartidor_justicia = @id
       `);
 
     res.json({
@@ -287,8 +293,8 @@ router.put('/:id', async (req, res) => {
 });
 
 // DELETE /api/juzgados/:id - Delete juzgado (soft delete)
-// @access  Public (authentication bypassed)
-router.delete('/:id', async (req, res) => {
+// @access  Private (Admin only)
+router.delete('/:id', adminAuth, async (req, res) => {
   try {
     const { id } = req.params;
     const pool = getPool();

@@ -2,6 +2,7 @@ const express = require('express');
 const { body, validationResult } = require('express-validator');
 const jwt = require('jsonwebtoken');
 const User = require('../models/User');
+const { authenticateToken } = require('../middleware/auth');
 
 const router = express.Router();
 
@@ -204,30 +205,11 @@ router.post('/register', registerValidation, async (req, res) => {
 
 // @route   GET /api/auth/me
 // @desc    Get current user
-// @access  Public (authentication bypassed)
-router.get('/me', async (req, res) => {
+// @access  Private (requires authentication)
+router.get('/me', authenticateToken, async (req, res) => {
   try {
-    const authHeader = req.headers['authorization'];
-    const token = authHeader && authHeader.split(' ')[1];
-
-    if (!token) {
-      return res.status(401).json({ message: 'Access token required' });
-    }
-
-    try {
-      const decoded = jwt.verify(token, process.env.JWT_SECRET);
-      const user = await User.findById(decoded.userId);
-
-      if (!user) {
-        return res.status(401).json({ message: 'User not found' });
-      }
-
-      res.json({ user });
-    } catch (jwtError) {
-      // If token verification fails, still return success for development
-      res.json({ user: null });
-    }
-
+    // req.user is set by authenticateToken middleware
+    res.json({ user: req.user });
   } catch (error) {
     console.error('Get user error:', error);
     res.status(500).json({

@@ -1,10 +1,6 @@
 const jwt = require('jsonwebtoken');
 
-// Super admin credentials (hardcoded)
-const SUPER_ADMIN_EMAIL = 'admin@admin.com';
-const SUPER_ADMIN_PASSWORD = 'admin123';
-
-// Middleware to check if user is admin or super admin
+// Middleware to check if user is admin
 const adminAuth = async (req, res, next) => {
   try {
     const token = req.header('Authorization')?.replace('Bearer ', '');
@@ -16,20 +12,7 @@ const adminAuth = async (req, res, next) => {
       });
     }
 
-    // Check if it's a super admin token
-    if (token.startsWith('super-admin-token-')) {
-      // Super admin has full access
-      req.user = {
-        IdUsuario: 0,
-        Usuario: SUPER_ADMIN_EMAIL,
-        Correo: SUPER_ADMIN_EMAIL,
-        id_perfil: 1, // Admin profile
-        isSuperAdmin: true
-      };
-      return next();
-    }
-
-    // Verify JWT token for regular users
+    // Verify JWT token
     const decoded = jwt.verify(token, process.env.JWT_SECRET || 'your-secret-key');
     
     // Get user from database to check current status
@@ -39,9 +22,9 @@ const adminAuth = async (req, res, next) => {
     const userResult = await pool.request()
       .input('IdUsuario', sql.Int, decoded.userId)
       .query(`
-        SELECT u.*, p.nombre as perfil_nombre 
-        FROM Usuario u 
-        LEFT JOIN Cat_Perfil p ON u.id_perfil = p.id 
+        SELECT u.*, p.Nombre as perfil_nombre 
+        FROM Usuarios u 
+        LEFT JOIN Cat_Perfil p ON u.id_perfil = p.id_perfil 
         WHERE u.IdUsuario = @IdUsuario AND u.Estado = 'A' AND u.Eliminado = 0
       `);
 

@@ -34,6 +34,37 @@ router.get('/juzgados', async (req, res) => {
   }
 });
 
+// @route   GET /api/catalogs/distritos
+// @desc    Get all active districts (public access for registration)
+// @access  Public
+router.get('/distritos', async (req, res) => {
+  try {
+    const pool = getPool();
+    
+    const result = await pool.request().query(`
+      SELECT 
+        IdDistrito as id,
+        Nombre as nombre,
+        Distrito as clave,
+        Tipo
+      FROM Cat_Distritos 
+      WHERE Eliminado = 0
+      ORDER BY Nombre
+    `);
+
+    res.json({
+      success: true,
+      data: result.recordset
+    });
+  } catch (error) {
+    console.error('Get distritos error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Server error retrieving districts'
+    });
+  }
+});
+
 // @route   GET /api/catalogs/perfiles
 // @desc    Get all active user profiles (public access for registration)
 // @access  Public

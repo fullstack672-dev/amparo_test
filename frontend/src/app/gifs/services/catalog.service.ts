@@ -9,11 +9,15 @@ export interface CatalogItem {
   activo?: boolean;
   fecha_creacion?: string;
   fecha_actualizacion?: string;
-  // Juzgados specific fields
+  // Juzgados specific fields - matching Cat_Juzgados table
+  IdJuzgadoPJHGO?: number;
   Clave?: string;
   Correo?: string;
   TipoJuicio?: string;
   IdDistrito?: number;
+  organo_impartidor_justicia?: number;
+  // District information
+  distrito_nombre?: string;
   // Allow bracket notation access
   [key: string]: any;
 }
@@ -33,12 +37,22 @@ export interface CatalogCreateRequest {
   nombre: string;
   descripcion?: string;
   activo?: boolean;
+  // Juzgados specific fields
+  clave?: string;
+  tipoJuicio?: string;
+  idDistrito?: number;
+  correo?: string;
 }
 
 export interface CatalogUpdateRequest {
   nombre: string;
   descripcion?: string;
   activo?: boolean;
+  // Juzgados specific fields
+  clave?: string;
+  tipoJuicio?: string;
+  idDistrito?: number;
+  correo?: string;
 }
 
 @Injectable({
@@ -81,6 +95,13 @@ export class CatalogService {
 
   updateJuzgado(id: number, data: CatalogUpdateRequest): Observable<{ success: boolean; message: string; data: CatalogItem }> {
     return this.http.put<{ success: boolean; message: string; data: CatalogItem }>(`${this.apiUrl}/juzgados/${id}`, data, {
+      headers: this.getHeaders()
+    });
+  }
+
+  // Get districts for juzgados
+  getDistritos(): Observable<{ success: boolean; data: CatalogItem[] }> {
+    return this.http.get<{ success: boolean; data: CatalogItem[] }>(`${this.apiUrl}/catalogs/distritos`, {
       headers: this.getHeaders()
     });
   }
