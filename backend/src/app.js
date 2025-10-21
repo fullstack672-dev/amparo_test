@@ -89,6 +89,11 @@ app.use('*', (req, res) => {
 const startServer = async () => {
   try {
     await connectDB();
+    
+    // Initialize database schema and seed data
+    const { initializeDatabase } = require('./utils/database-init');
+    await initializeDatabase();
+    
     const PORT = process.env.PORT || 3000;
     
     app.listen(PORT, () => {

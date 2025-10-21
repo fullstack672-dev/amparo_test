@@ -1,0 +1,92 @@
+version: "3.9"
+
+services:
+  # SQL Server Database
+  database:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    container_name: amparo-database
+    environment:
+      SA_PASSWORD: "Basketball@0615"
+      ACCEPT_EULA: "Y"
+    ports:
+      - "1433:1433"
+    healthcheck:
+      test: ["CMD-SHELL", "/opt/mssql-tools/bin/sqlcmd -S localhost -U SA -P Basketball@0615 -Q 'SELECT 1'"]
+      interval: 10s
+      timeout: 5s
+      retries: 15
+      start_period: 30s
+    networks:
+      amparo-network: {}
+    volumes:
+      - mssql-data:/var/opt/mssql/data
+
+  # Backend Node.js
+  backend:
+    build:
+      context: ./backend
+    container_name: amparo-backend
+    working_dir: /app
+    environment:
+      NODE_ENV: development
+      PORT: 3000
+      DB_SERVER: database
+      DB_PORT: 1433
+      DB_USER: SA
+      DB_PASSWORD: Basketball@0615
+      DB_NAME: PJF_Amparos
+      JWT_SECRET: your-super-secret-jwt-key-2024
+      JWT_EXPIRES_IN: 24h
+      CORS_ORIGIN: http://localhost:4200
+    ports:
+      - "3000:3000"
+    depends_on:
+      - database  # simple dependency; backend will retry DB connections internally
+    networks:
+      amparo-network: {}
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "nc -z database 1433 || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 10s
+
+  # Frontend Angular App
+  frontend:
+    image: node:20-alpine
+    container_name: amparo-frontend
+    working_dir: /app
+    environment:
+      NODE_ENV: development
+    ports:
+      - "4200:4200"
+    depends_on:
+      - backend
+    volumes:
+      - ./frontend:/app
+      - frontend-node-modules:/app/node_modules
+    networks:
+      amparo-network: {}
+    restart: unless-stopped
+    command: sh -c "npm install && npx ng serve --host 0.0.0.0 --port 4200 --disable-host-check"
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:4200 || exit 1"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 120s
+
+# Networks
+networks:
+  amparo-network:
+    driver: bridge
+
+# Volumes
+volumes:
+  mssql-data:
+    driver: local
+  backend-node-modules:
+    driver: local
+  frontend-node-modules:
+    driver: local

@@ -1,9 +1,9 @@
 const config = {
-  user: 'SA',
-  password: 'Basketball@0615', // your SA password
-  server: 'localhost',          // since SQL Server is on the same host
-  port: 1433,
-  database: 'PJF_Amparos',      // replace with your database
+  user: process.env.DB_USER || 'SA',
+  password: process.env.DB_PASSWORD || 'Basketball@0615',
+  server: process.env.DB_SERVER || 'localhost',
+  port: parseInt(process.env.DB_PORT || '1433'),
+  database: process.env.DB_NAME || 'PJF_Amparos',
   options: {
     encrypt: false,              // true if using Azure
     trustServerCertificate: true, // required for local dev

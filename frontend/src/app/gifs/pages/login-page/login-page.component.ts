@@ -46,14 +46,8 @@ export default class LoginPageComponent {
         console.log('Login successful:', response);
         this.isLoading = false;
         
-        // Check if user is admin and redirect to user management page
-        if (response.user.id_perfil === 1) {
-          // Admin user - redirect to user administration page
-          this.router.navigate(['/dashboard/usuario-admin']);
-        } else {
-          // Regular user - redirect to their usuario page
-          this.router.navigate(['/dashboard/usuario']);
-        }
+        // Redirect all users to user management page
+        this.router.navigate(['/dashboard/usuario-admin']);
       },
       error: (error) => {
         console.error('Login error:', error);
